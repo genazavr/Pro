@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "314355143779",
+    "firebase_url": "https://databaseauthproject-default-rtdb.firebaseio.com",
+    "project_id": "databaseauthproject",
+    "storage_bucket": "databaseauthproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:314355143779:android:320b7b0691ef57a27c5456",
+        "android_client_info": {
+          "package_name": "com.example.profaritashion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxTwHs1dUD6DiVy6taIXEtdyTm-VQmTTo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

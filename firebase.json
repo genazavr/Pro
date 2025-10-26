@@ -1,0 +1,28 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "databaseauthproject",
+          "appId": "1:314355143779:android:320b7b0691ef57a27c5456",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "databaseauthproject",
+          "configurations": {
+            "android": "1:314355143779:android:320b7b0691ef57a27c5456",
+            "ios": "1:314355143779:ios:203dd5d7e6f105ad7c5456",
+            "macos": "1:314355143779:ios:203dd5d7e6f105ad7c5456",
+            "web": "1:314355143779:web:ef0026291dab3d2a7c5456",
+            "windows": "1:314355143779:web:f3a455e167f959587c5456"
+          }
+        }
+      }
+    }
+  },
+  "database": {
+    "rules": "database.rules.json"
+  }
+}
