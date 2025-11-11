@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'choice_of_tests.dart';
 import 'map_page.dart';
-import 'professions.dart';
-import 'college_rating.dart';
-import 'profile.dart';
 
 class HomeWithBottomNav extends StatefulWidget {
   final String userId;
@@ -23,10 +20,10 @@ class _HomeWithBottomNavState extends State<HomeWithBottomNav> {
     super.initState();
     _pages = [
       ChoiceOfTestsPage(userId: widget.userId), // Тесты
-      MapPage(userId: widget.userId,),                               // Вузы
-      CollegeRatingPage(userId: widget.userId), // Рейтинг
-      ProfessionsPage(userId: widget.userId), // Профессии
-      ProfilePage(userId: widget.userId), // Профиль
+      MapPage(userId: '',),                               // Вузы
+      const Center(child: Text('Рейтинг (заглушка)')),
+      const Center(child: Text('Профессии (заглушка)')),
+      const Center(child: Text('Профиль (заглушка)')),
     ];
   }
 
