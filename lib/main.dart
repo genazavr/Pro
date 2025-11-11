@@ -9,6 +9,10 @@ import 'map_page.dart';
 import 'college_rating.dart';
 import 'professions.dart';
 import 'profile.dart';
+import 'ege_screen.dart';
+import 'oge_screen.dart';
+import 'admission_chances_screen.dart';
+import 'merch_shop_screen.dart';
 // Если есть firebase_options.dart, раскомментировать:
 // import 'firebase_options.dart';
 
@@ -56,6 +60,22 @@ class MyApp extends StatelessWidget {
         '/profile': (context) {
           final userId = ModalRoute.of(context)!.settings.arguments as String;
           return ProfilePage(userId: userId);
+        },
+        '/ege': (context) {
+          final userId = ModalRoute.of(context)!.settings.arguments as String;
+          return EGEScreen(userId: userId);
+        },
+        '/oge': (context) {
+          final userId = ModalRoute.of(context)!.settings.arguments as String;
+          return OGEScreen(userId: userId);
+        },
+        '/admission_chances': (context) {
+          final userId = ModalRoute.of(context)!.settings.arguments as String;
+          return AdmissionChancesScreen(userId: userId);
+        },
+        '/merch_shop': (context) {
+          final userId = ModalRoute.of(context)!.settings.arguments as String;
+          return MerchShopScreen(userId: userId);
         },
       },
     );
