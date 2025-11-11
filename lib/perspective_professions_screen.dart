@@ -62,6 +62,41 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
     return matches.length > 1 ? int.parse(matches[1].group(1)!) : 0;
   }
 
+  void _handlePlay(String name) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Запускаем игру для $name'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  Widget _buildPlayButton(String name, {bool compact = false}) {
+    final onTap = () => _handlePlay(name);
+    if (compact) {
+      return IconButton(
+        onPressed: onTap,
+        icon: const Icon(Icons.play_arrow_rounded),
+        color: const Color(0xFF6C63FF),
+        splashRadius: 22,
+        tooltip: 'Играть',
+      );
+    }
+    return TextButton.icon(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        backgroundColor: const Color(0xFF6C63FF),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      icon: const Icon(Icons.play_arrow_rounded),
+      label: const Text('Играть'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final sortedProfessions = List<Map<String, dynamic>>.from(widget.perspectiveProfessions);
@@ -104,15 +139,39 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                   ],
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      "Самые перспективные профессии",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.nunito(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF0A0F2D),
-                      ),
+                    Row(
+                      children: [
+                        Material(
+                          color: const Color(0xFF6C63FF).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(14),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const SizedBox(
+                              height: 44,
+                              width: 44,
+                              child: Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: Color(0xFF0A0F2D),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            "Самые перспективные профессии",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.nunito(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0A0F2D),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 44),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -343,6 +402,8 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    _buildPlayButton(profession['name'], compact: true),
                   ],
                 ),
               );
@@ -492,6 +553,11 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _buildPlayButton(profession['name']),
           ),
         ],
       ),
