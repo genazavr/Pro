@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'games/foundry_game.dart';
+import 'games/qc_game.dart';
+import 'games/stamper_game.dart';
 
 class PerspectiveProfessionsScreen extends StatefulWidget {
   final List<Map<String, dynamic>> perspectiveProfessions;
+  final String userId;
   
   const PerspectiveProfessionsScreen({
     super.key, 
     required this.perspectiveProfessions,
+    required this.userId,
   });
 
   @override
@@ -63,14 +68,34 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
   }
 
   void _handlePlay(String name) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text('Запускаем игру для $name'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    Widget? gameScreen;
+    
+    switch (name) {
+      case 'Литейщик':
+        gameScreen = FoundryGame(userId: widget.userId);
+        break;
+      case 'Технический контролер':
+        gameScreen = QCGame(userId: widget.userId);
+        break;
+      case 'Штамповщик':
+        gameScreen = StamperGame(userId: widget.userId);
+        break;
+      default:
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('Игра для "$name" пока не доступна'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        return;
+    }
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => gameScreen!),
+    );
   }
 
   Widget _buildPlayButton(String name, {bool compact = false}) {
