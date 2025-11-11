@@ -523,6 +523,7 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
       MaterialPageRoute(
         builder: (context) => PerspectiveProfessionsScreen(
           perspectiveProfessions: professions.where((p) => p['isPerspective'] == true).toList(),
+          userId: widget.userId,
         ),
       ),
     );
