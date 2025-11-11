@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets/bottom_nav.dart';
+import 'perspective_professions_screen.dart';
 import 'dart:math';
 
 class ProfessionsPage extends StatefulWidget {
@@ -379,6 +380,34 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
         'description': 'Создание рекламных кампаний и продвижение товаров.',
         'colleges': ['Экономико-технологический колледж']
       },
+      // Перспективные профессии для Удмуртии
+      {
+        'name': 'Технический контролер',
+        'type': 'контролер',
+        'duration': '2 года 10 месяцев',
+        'salary': '45 000–85 000 ₽',
+        'description': 'Контроль качества продукции, проверка соответствия техническим требованиям и стандартам.',
+        'colleges': ['Ижевский индустриальный техникум', 'Воткинский машиностроительный техникум', 'Глазовский политехнический колледж'],
+        'isPerspective': true
+      },
+      {
+        'name': 'Литейщик',
+        'type': 'реалистический',
+        'duration': '2 года 10 месяцев',
+        'salary': '50 000–95 000 ₽',
+        'description': 'Изготовление отливок из металла, работа с литейным оборудованием и формами.',
+        'colleges': ['Ижевский машиностроительный колледж', 'Воткинский машиностроительный техникум'],
+        'isPerspective': true
+      },
+      {
+        'name': 'Штамповщик',
+        'type': 'реалистический',
+        'duration': '2 года 10 месяцев',
+        'salary': '42 000–80 000 ₽',
+        'description': 'Обработка металлов давлением, работа на штамповочном оборудовании.',
+        'colleges': ['Ижевский индустриальный техникум', 'Сарапульский политехнический колледж'],
+        'isPerspective': true
+      },
       // ... остальные профессии
     ];
     setState(() {
@@ -471,6 +500,16 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
     super.dispose();
   }
 
+  void _showPerspectiveProfessions(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PerspectiveProfessionsScreen(
+          perspectiveProfessions: professions.where((p) => p['isPerspective'] == true).toList(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final availableTypes = [
@@ -553,6 +592,52 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
                         ),
                       ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Кнопка перспективных профессий
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(16),
+                    elevation: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF6C63FF),
+                            Color(0xFF4A90E2),
+                          ],
+                        ),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => _showPerspectiveProfessions(context),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.trending_up, color: Colors.white, size: 24),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Самые перспективные профессии',
+                                style: GoogleFonts.nunito(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
 
