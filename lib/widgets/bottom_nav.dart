@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 class BottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
-  const BottomNav({super.key, required this.currentIndex, required this.onTap});
+  final String userId;
+  const BottomNav({super.key, required this.currentIndex, required this.onTap, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -29,38 +30,93 @@ class BottomNav extends StatelessWidget {
         child: Container(
           height: 70,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: Stack(
             children: [
-              _buildNavItem(
-                index: 0,
-                icon: Icons.psychology_outlined,
-                label: "Тесты",
-                isActive: currentIndex == 0,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(
+                    index: 0,
+                    icon: Icons.psychology_outlined,
+                    label: "Тесты",
+                    isActive: currentIndex == 0,
+                  ),
+                  _buildNavItem(
+                    index: 1,
+                    icon: Icons.school_outlined,
+                    label: "Вузы",
+                    isActive: currentIndex == 1,
+                  ),
+                  const SizedBox(width: 60), // Space for center button
+                  _buildNavItem(
+                    index: 3,
+                    icon: Icons.work_outline,
+                    label: "Профессии",
+                    isActive: currentIndex == 3,
+                  ),
+                  _buildNavItem(
+                    index: 4,
+                    icon: Icons.person_outline,
+                    label: "Профиль",
+                    isActive: currentIndex == 4,
+                  ),
+                ],
               ),
-              _buildNavItem(
-                index: 1,
-                icon: Icons.school_outlined,
-                label: "Вузы",
-                isActive: currentIndex == 1,
-              ),
-              _buildNavItem(
-                index: 2,
-                icon: Icons.star_outline,
-                label: "Рейтинг",
-                isActive: currentIndex == 2,
-              ),
-              _buildNavItem(
-                index: 3,
-                icon: Icons.work_outline,
-                label: "Профессии",
-                isActive: currentIndex == 3,
-              ),
-              _buildNavItem(
-                index: 4,
-                icon: Icons.person_outline,
-                label: "Профиль",
-                isActive: currentIndex == 4,
+              Positioned(
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () => onTap(2),
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFEF3124),
+                            const Color(0xFFEF3124).withOpacity(0.8),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFEF3124).withOpacity(0.4),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 28,
+                            color: currentIndex == 2 ? Colors.white : Colors.white70,
+                          ),
+                          if (currentIndex == 2)
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              child: Icon(
+                                Icons.chat_bubble_outline,
+                                size: 28,
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
