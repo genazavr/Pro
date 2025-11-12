@@ -17,7 +17,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   final _db = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> colleges = [];
   List<String> favoriteColleges = [];
-  int _currentIndex = 2;
+  final int _currentIndex = 2;
   String _selectedCity = 'Все города';
   late AnimationController _starController;
   final List<Star> _stars = [];
@@ -644,6 +644,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
       final uri = Uri.parse(url);
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Не удалось открыть сайт'),
