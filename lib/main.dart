@@ -17,6 +17,9 @@ import 'ege_screen.dart';
 import 'oge_screen.dart';
 import 'admission_chances_screen.dart';
 import 'merch_shop_screen.dart';
+import 'study/pomodoro_page.dart';
+import 'study/schedule_calendar_page.dart';
+import 'study/notes_page.dart';
 // Если есть firebase_options.dart, раскомментировать:
 // import 'firebase_options.dart';
 
@@ -70,6 +73,18 @@ class MyApp extends StatelessWidget {
               '/profile': (context) {
                 final userId = ModalRoute.of(context)!.settings.arguments as String;
                 return ProfilePage(userId: userId);
+              },
+              '/pomodoro': (context) {
+                final userId = ModalRoute.of(context)!.settings.arguments as String;
+                return PomodoroPage(userId: userId);
+              },
+              '/schedule': (context) {
+                final userId = ModalRoute.of(context)!.settings.arguments as String;
+                return ScheduleCalendarPage(userId: userId);
+              },
+              '/notes': (context) {
+                final userId = ModalRoute.of(context)!.settings.arguments as String;
+                return NotesPage(userId: userId);
               },
               '/ege': (context) {
                 final userId = ModalRoute.of(context)!.settings.arguments as String;
