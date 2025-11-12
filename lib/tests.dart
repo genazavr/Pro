@@ -221,7 +221,7 @@ class _TestPageState extends State<TestPage> with SingleTickerProviderStateMixin
 
       _showResultsDialog();
     } catch (e) {
-      print("Ошибка сохранения результатов: $e");
+      debugPrint("Ошибка сохранения результатов: $e");
       _showErrorDialog();
     }
   }

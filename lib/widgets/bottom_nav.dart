@@ -13,14 +13,14 @@ class BottomNav extends StatelessWidget {
         color: const Color(0xFF0A0F2D),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
         border: Border(
           top: BorderSide(
-            color: Colors.blueAccent.withOpacity(0.3),
+            color: Colors.blueAccent.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -81,11 +81,11 @@ class BottomNav extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? Colors.blueAccent.withOpacity(0.2) : Colors.transparent,
+          color: isActive ? Colors.blueAccent.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
           border: isActive
               ? Border.all(
-            color: Colors.blueAccent.withOpacity(0.5),
+            color: Colors.blueAccent.withValues(alpha: 0.5),
             width: 1,
           )
               : null,
@@ -109,7 +109,7 @@ class BottomNav extends StatelessWidget {
                     child: Icon(
                       icon,
                       size: 24,
-                      color: Colors.yellow.withOpacity(0.3),
+                      color: Colors.yellow.withValues(alpha: 0.3),
                     ),
                   ),
               ],

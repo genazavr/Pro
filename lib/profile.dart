@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'widgets/bottom_nav.dart';
 import 'dart:math';
@@ -9,6 +10,10 @@ import 'ege_screen.dart';
 import 'oge_screen.dart';
 import 'admission_chances_screen.dart';
 import 'merch_shop_screen.dart';
+import 'theme/theme_manager.dart';
+import 'theme/app_theme.dart';
+import 'theme/particle_painters.dart';
+import 'settings/theme_settings_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -43,6 +48,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     _initializeStars();
     _loadProfile();
     _loadFavorites();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ThemeManager>().initialize(widget.userId);
+    });
   }
 
   void _initializeStars() {
@@ -175,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     }
   }
 
-  Widget _buildInfoCard(IconData icon, String title, String subtitle) {
+  Widget _buildInfoCard(IconData icon, String title, String subtitle, SeasonTheme theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -184,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.2),
+            color: AppTheme.getPrimaryColor(theme).withOpacity(0.2),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -195,10 +204,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF).withOpacity(0.1),
+              color: AppTheme.getPrimaryColor(theme).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+            child: Icon(icon, color: AppTheme.getPrimaryColor(theme), size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -218,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                   subtitle,
                   style: GoogleFonts.nunito(
                     fontSize: 16,
-                    color: const Color(0xFF0A0F2D),
+                    color: AppTheme.getPrimaryColor(theme),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -402,7 +411,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildFeatureButton(String title, String subtitle, IconData icon, VoidCallback onTap) {
+  Widget _buildFeatureButton(String title, String subtitle, IconData icon, VoidCallback onTap, SeasonTheme theme) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -413,7 +422,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF6C63FF).withOpacity(0.2),
+              color: AppTheme.getPrimaryColor(theme).withOpacity(0.2),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -424,10 +433,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF).withOpacity(0.1),
+                color: AppTheme.getPrimaryColor(theme).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+              child: Icon(icon, color: AppTheme.getPrimaryColor(theme), size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -438,7 +447,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                     title,
                     style: GoogleFonts.nunito(
                       fontSize: 16,
-                      color: const Color(0xFF0A0F2D),
+                      color: AppTheme.getPrimaryColor(theme),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -465,6 +474,87 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildSeasonalBackground(SeasonTheme theme) {
+    return AnimatedBuilder(
+      animation: _starController,
+      builder: (context, child) {
+        return Stack(
+          children: _stars.map((star) {
+            final progress = (_starController.value * star.speed + star.delay) % 2.0;
+            final x = star.x + progress * 1.5;
+            final y = star.y + progress * 1.5;
+            final opacity = x > 0 && x < 1.5 && y > -0.5 && y < 1.5
+                ? (1.0 - (progress / 2.0).abs()) * star.brightness
+                : 0.0;
+
+            final pulse = (sin(_starController.value * 5 * pi + star.delay * 8) + 1) / 2;
+            final currentOpacity = opacity * (0.8 + 0.2 * pulse);
+
+            Color particleColor;
+            Widget particleShape;
+
+            switch (theme) {
+              case SeasonTheme.autumn:
+                particleColor = [
+                  const Color(0xFFFF8A65),
+                  const Color(0xFFFFAB91),
+                  const Color(0xFFFFCCBC),
+                  const Color(0xFFD7CCC8),
+                ][_random.nextInt(4)];
+                particleShape = CustomPaint(
+                  size: Size(star.size, star.size),
+                  painter: LeafPainter(particleColor),
+                );
+                break;
+              case SeasonTheme.winter:
+                particleColor = Colors.white;
+                particleShape = CustomPaint(
+                  size: Size(star.size, star.size),
+                  painter: SnowflakePainter(particleColor),
+                );
+                break;
+              case SeasonTheme.spring:
+                particleColor = const Color(0xFF81C784);
+                particleShape = CustomPaint(
+                  size: Size(star.size, star.size),
+                  painter: RaindropPainter(particleColor),
+                );
+                break;
+              default:
+                particleColor = const Color(0xFFFFD54F);
+                particleShape = Container(
+                  width: star.size,
+                  height: star.size,
+                  decoration: BoxDecoration(
+                    color: particleColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: particleColor.withValues(alpha: 0.6),
+                        blurRadius: star.size / 2,
+                      ),
+                    ],
+                  ),
+                );
+            }
+
+            return Positioned(
+              left: x * MediaQuery.of(context).size.width,
+              top: y * MediaQuery.of(context).size.height,
+              child: Transform.rotate(
+                angle: _starController.value * 2 * pi,
+                child: Opacity(
+                  opacity: currentOpacity.clamp(0.0, 1.0),
+                  child: particleShape,
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _starController.dispose();
@@ -473,313 +563,354 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0F2D),
-      body: Stack(
-        children: [
-          // Звездный фон
-          _buildStarBackground(),
+    return Consumer<ThemeManager>(
+      builder: (context, themeManager, child) {
+        return Scaffold(
+          backgroundColor: AppTheme.getBackgroundColor(themeManager.currentTheme),
+          body: Stack(
+            children: [
+              // Анимированный фон в зависимости от темы
+              if (themeManager.currentTheme != SeasonTheme.summer)
+                _buildSeasonalBackground(themeManager.currentTheme)
+              else
+                _buildStarBackground(),
 
-          // Градиентный оверлей
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF0A0F2D).withOpacity(0.6),
-                  const Color(0xFF1E3A8A).withOpacity(0.4),
-                  const Color(0xFF0A0F2D).withOpacity(0.6),
-                ],
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    children: [
-                      // Заголовок как часть скролла
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Мой профиль",
-                              style: GoogleFonts.nunito(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF0A0F2D),
-                              ),
-                            ),
-                            Text(
-                              "Управление вашими данными",
-                              style: GoogleFonts.nunito(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF6C63FF),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Аватар и основная информация
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.blueAccent.withOpacity(0.2),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // Исправленная кнопка выбора фото
-                            GestureDetector(
-                              onTap: _pickImage,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 120,
-                                    height: 120,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: const LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [Color(0xFF6C63FF), Color(0xFF8B78FF)],
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFF6C63FF).withOpacity(0.4),
-                                          blurRadius: 20,
-                                          offset: const Offset(0, 10),
-                                        ),
-                                      ],
-                                    ),
-                                    child: _profileImage != null
-                                        ? ClipOval(
-                                      child: Image.file(
-                                        _profileImage!,
-                                        width: 120,
-                                        height: 120,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                        : Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.2),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Color(0xFF6C63FF),
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              name,
-                              style: GoogleFonts.nunito(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF0A0F2D),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'ID: ${widget.userId}',
-                              style: GoogleFonts.nunito(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Контактная информация
-                      _buildInfoCard(Icons.email, 'Электронная почта', email),
-                      _buildInfoCard(Icons.phone, 'Телефон', phone),
-
-                      // Избранные колледжи
-                      _buildFavoriteSection(
-                          'Избранные колледжи',
-                          favoriteColleges,
-                          Colors.blueAccent
-                      ),
-
-                      // Избранные профессии
-                      _buildFavoriteSection(
-                          'Избранные профессии',
-                          favoriteProfessions,
-                          Colors.green
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Новые фишки профиля
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Text(
-                          'Подготовка к экзаменам',
-                          style: GoogleFonts.nunito(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-
-                      _buildFeatureButton(
-                        'ЕГЭ',
-                        'Подготовка к единому гос. экзамену',
-                        Icons.school,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EGEScreen(userId: widget.userId)),
-                        ),
-                      ),
-
-                      _buildFeatureButton(
-                        'ОГЭ',
-                        'Подготовка к основному гос. экзамену',
-                        Icons.school_outlined,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OGEScreen(userId: widget.userId)),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Text(
-                          'Карьерная ориентация',
-                          style: GoogleFonts.nunito(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-
-                      _buildFeatureButton(
-                        'Шансы поступления',
-                        'Рассчитайте свои шансы на профессию',
-                        Icons.trending_up,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AdmissionChancesScreen(userId: widget.userId)),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Text(
-                          'Магазин',
-                          style: GoogleFonts.nunito(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-
-                      _buildFeatureButton(
-                        'Магазин мерча',
-                        'Купите мерч на баллы',
-                        Icons.shopping_bag,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MerchShopScreen(userId: widget.userId)),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Кнопка выхода (исправленная)
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        child: ElevatedButton.icon(
-                          onPressed: _logout, // Используем исправленный метод
-                          icon: const Icon(Icons.logout, size: 20),
-                          label: Text(
-                            'Выйти из аккаунта',
-                            style: GoogleFonts.nunito(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 56),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 8,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
+              // Градиентный оверлей
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.getBackgroundColor(themeManager.currentTheme).withOpacity(0.6),
+                      AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.4),
+                      AppTheme.getBackgroundColor(themeManager.currentTheme).withOpacity(0.6),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              SafeArea(
+                child: Column(
+                  children: [
+                    // Заголовок страницы
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Мой профиль",
+                            style: GoogleFonts.nunito(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.getPrimaryColor(themeManager.currentTheme),
+                            ),
+                          ),
+                          Text(
+                            "Управление вашими данными",
+                            style: GoogleFonts.nunito(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          // Аватар и основная информация
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.95),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.2),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                // Исправленная кнопка выбора фото
+                                GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: 120,
+                                        height: 120,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              AppTheme.getPrimaryColor(themeManager.currentTheme),
+                                              AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.7),
+                                            ],
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppTheme.getPrimaryColor(themeManager.currentTheme).withOpacity(0.4),
+                                              blurRadius: 20,
+                                              offset: const Offset(0, 10),
+                                            ),
+                                          ],
+                                        ),
+                                        child: _profileImage != null
+                                            ? ClipOval(
+                                          child: Image.file(
+                                            _profileImage!,
+                                            width: 120,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                            : Icon(
+                                          Icons.person,
+                                          size: 60,
+                                          color: Colors.white.withOpacity(0.9),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.2),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            Icons.camera_alt,
+                                            color: AppTheme.getPrimaryColor(themeManager.currentTheme),
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  name,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.getPrimaryColor(themeManager.currentTheme),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'ID: ${widget.userId}',
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Контактная информация
+                          _buildInfoCard(Icons.email, 'Электронная почта', email, themeManager.currentTheme),
+                          _buildInfoCard(Icons.phone, 'Телефон', phone, themeManager.currentTheme),
+
+                          // Избранные колледжи
+                          _buildFavoriteSection(
+                              'Избранные колледжи',
+                              favoriteColleges,
+                              Colors.blueAccent
+                          ),
+
+                          // Избранные профессии
+                          _buildFavoriteSection(
+                              'Избранные профессии',
+                              favoriteProfessions,
+                              Colors.green
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Новые фишки профиля
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              'Подготовка к экзаменам',
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          _buildFeatureButton(
+                            'ЕГЭ',
+                            'Подготовка к единому гос. экзамену',
+                            Icons.school,
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EGEScreen(userId: widget.userId)),
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          _buildFeatureButton(
+                            'ОГЭ',
+                            'Подготовка к основному гос. экзамену',
+                            Icons.school_outlined,
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OGEScreen(userId: widget.userId)),
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              'Карьерная ориентация',
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          _buildFeatureButton(
+                            'Шансы поступления',
+                            'Рассчитайте свои шансы на профессию',
+                            Icons.trending_up,
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => AdmissionChancesScreen(userId: widget.userId)),
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              'Магазин',
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          _buildFeatureButton(
+                            'Магазин мерча',
+                            'Купите мерч на баллы',
+                            Icons.shopping_bag,
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MerchShopScreen(userId: widget.userId)),
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
+                              'Настройки',
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          _buildFeatureButton(
+                            'Тема приложения',
+                            'Выберите тему оформления',
+                            Icons.palette,
+                            () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ThemeSettingsPage(userId: widget.userId),
+                              ),
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Кнопка выхода (исправленная)
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            child: ElevatedButton.icon(
+                              onPressed: _logout, // Используем исправленный метод
+                              icon: const Icon(Icons.logout, size: 20),
+                              label: Text(
+                                'Выйти из аккаунта',
+                                style: GoogleFonts.nunito(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 8,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+          bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+        );
+      },
     );
   }
 }
