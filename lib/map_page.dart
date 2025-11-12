@@ -1244,6 +1244,17 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             right: 16,
             child: Column(
               children: [
+                // Кнопка рейтинга вузов
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/college_rating', arguments: widget.userId);
+                  },
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.white,
+                  heroTag: "rating",
+                  child: const Icon(Icons.school),
+                ),
+                const SizedBox(height: 12),
                 // Кнопка списка мест
                 FloatingActionButton(
                   onPressed: () {
