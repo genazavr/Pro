@@ -3,7 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'widgets/bottom_nav.dart';
+import 'places_list_page.dart';
 import 'dart:math';
 
 class MapPage extends StatefulWidget {
@@ -21,6 +23,9 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   final List<Star> _stars = [];
   final Random _random = Random();
   bool _isDarkMode = true;
+  final _db = FirebaseDatabase.instance.ref();
+  bool _isAddingPlace = false;
+  List<Map<String, dynamic>> userPlaces = [];
 
   final Map<String, Color> _typeColors = {
     "БПОУ УР": Colors.blueAccent,
@@ -303,6 +308,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     )..repeat();
 
     _initializeStars();
+    _loadUserPlaces();
   }
 
   void _initializeStars() {
@@ -316,6 +322,37 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         brightness: 0.6 + _random.nextDouble() * 0.4,
       ));
     }
+  }
+
+  void _loadUserPlaces() async {
+    final snapshot = await _db.child('places').get();
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final placesList = <Map<String, dynamic>>[];
+      
+      for (final placeId in data.keys) {
+        final placeData = Map<String, dynamic>.from(data[placeId] as Map);
+        placeData['id'] = placeId;
+        placesList.add(placeData);
+      }
+      
+      setState(() {
+        userPlaces = placesList;
+      });
+    }
+  }
+
+  bool _isInUdmurtia(LatLng point) {
+    // Приблизительные границы Удмуртской Республики
+    const double minLat = 56.0;
+    const double maxLat = 58.5;
+    const double minLng = 51.0;
+    const double maxLng = 55.0;
+    
+    return point.latitude >= minLat && 
+           point.latitude <= maxLat && 
+           point.longitude >= minLng && 
+           point.longitude <= maxLng;
   }
 
   Widget _buildStarBackground() {
@@ -372,7 +409,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   void _navigate(int index) {
     final routes = [
       '/choice_tests',
-      null,
+      '/map_page',
       '/college_rating',
       '/professions',
       '/profile',
@@ -380,6 +417,251 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     if (routes[index] != null) {
       Navigator.pushReplacementNamed(context, routes[index]!, arguments: widget.userId);
     }
+  }
+
+  void _showAddPlaceDialog(LatLng point) {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final urlController = TextEditingController();
+
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Add Place",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.7),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (_, __, ___) => Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: _isDarkMode
+                    ? [const Color(0xFF1E3A8A), const Color(0xFF0A0F2D)]
+                    : [Colors.white, const Color(0xFFE3F2FD)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFF6C63FF).withOpacity(0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF6C63FF).withOpacity(0.3),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF6C63FF).withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add_location,
+                        color: Color(0xFF6C63FF),
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Добавить место',
+                        style: GoogleFonts.nunito(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: _isDarkMode ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isAddingPlace = false;
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: _isDarkMode ? Colors.white70 : Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Широта: ${point.latitude.toStringAsFixed(5)}',
+                  style: GoogleFonts.nunito(
+                    fontSize: 12,
+                    color: _isDarkMode ? Colors.white60 : Colors.grey[600]!,
+                  ),
+                ),
+                Text(
+                  'Долгота: ${point.longitude.toStringAsFixed(5)}',
+                  style: GoogleFonts.nunito(
+                    fontSize: 12,
+                    color: _isDarkMode ? Colors.white60 : Colors.grey[600]!,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    hintText: 'Название места',
+                    hintStyle: GoogleFonts.nunito(
+                      color: _isDarkMode ? Colors.white60 : Colors.grey[600],
+                    ),
+                    filled: true,
+                    fillColor: _isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: GoogleFonts.nunito(
+                    color: _isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descriptionController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Описание места',
+                    hintStyle: GoogleFonts.nunito(
+                      color: _isDarkMode ? Colors.white60 : Colors.grey[600],
+                    ),
+                    filled: true,
+                    fillColor: _isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: GoogleFonts.nunito(
+                    color: _isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: urlController,
+                  decoration: InputDecoration(
+                    hintText: 'Ссылка на место (необязательно)',
+                    hintStyle: GoogleFonts.nunito(
+                      color: _isDarkMode ? Colors.white60 : Colors.grey[600],
+                    ),
+                    filled: true,
+                    fillColor: _isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: GoogleFonts.nunito(
+                    color: _isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isAddingPlace = false;
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'Отмена',
+                        style: GoogleFonts.nunito(
+                          color: _isDarkMode ? Colors.white70 : Colors.grey[700]!,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (nameController.text.trim().isEmpty || 
+                            descriptionController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Заполните название и описание',
+                                style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                              ),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final place = {
+                          'name': nameController.text.trim(),
+                          'description': descriptionController.text.trim(),
+                          'url': urlController.text.trim(),
+                          'lat': point.latitude,
+                          'lng': point.longitude,
+                          'addedBy': widget.userId,
+                          'timestamp': ServerValue.timestamp,
+                        };
+
+                        await _db.child('places').push().set(place);
+                        
+                        setState(() {
+                          _isAddingPlace = false;
+                        });
+                        if (mounted) {
+                          Navigator.of(context).pop();
+                          _loadUserPlaces();
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Место добавлено!',
+                                style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C63FF),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Сохранить',
+                        style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      transitionBuilder: (_, anim, __, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+          child: FadeTransition(opacity: anim, child: child),
+        );
+      },
+    );
   }
 
   void _launchURL(String url) async {
@@ -603,6 +885,188 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     );
   }
 
+  Marker _buildUserPlaceMarker(Map<String, dynamic> place) {
+    return Marker(
+      point: LatLng(place['lat'] as double, place['lng'] as double),
+      width: 50,
+      height: 50,
+      child: GestureDetector(
+        onTap: () => _showUserPlaceInfo(place),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.withOpacity(0.6),
+                blurRadius: 8,
+                spreadRadius: 2,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.place,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showUserPlaceInfo(Map<String, dynamic> place) {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Place Info",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.7),
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (_, __, ___) => Center(
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: _isDarkMode
+                    ? [const Color(0xFF1E3A8A), const Color(0xFF0A0F2D)]
+                    : [Colors.white, const Color(0xFFE3F2FD)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.red.withOpacity(0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.red.withOpacity(0.3),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.place,
+                        color: Colors.red,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        place['name'] as String,
+                        style: GoogleFonts.nunito(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: _isDarkMode ? Colors.white : Colors.black,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildInfoRow(Icons.description, place['description'] as String,
+                    _isDarkMode ? Colors.white70 : Colors.grey[700]!),
+                if (place['url'] != null && place['url'].toString().isNotEmpty)
+                  _buildInfoRow(Icons.link, place['url'] as String, Colors.red),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _isDarkMode ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Широта: ${place['lat'].toStringAsFixed(5)}',
+                        style: GoogleFonts.nunito(
+                          fontSize: 12,
+                          color: _isDarkMode ? Colors.white60 : Colors.grey[600]!,
+                        ),
+                      ),
+                      Text(
+                        'Долгота: ${place['lng'].toStringAsFixed(5)}',
+                        style: GoogleFonts.nunito(
+                          fontSize: 12,
+                          color: _isDarkMode ? Colors.white60 : Colors.grey[600]!,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Закрыть',
+                        style: GoogleFonts.nunito(
+                          color: _isDarkMode ? Colors.white70 : Colors.grey[700]!,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (place['url'] != null && place['url'].toString().isNotEmpty) ...[
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          _launchURL(place['url'] as String);
+                        },
+                        icon: const Icon(Icons.link, size: 18),
+                        label: Text(
+                          'сайт',
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+      transitionBuilder: (_, anim, __, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+          child: FadeTransition(opacity: anim, child: child),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     _starController.dispose();
@@ -626,6 +1090,24 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
               initialZoom: 8.5,
               maxZoom: 18,
               minZoom: 6,
+              onTap: _isAddingPlace ? (TapPosition tapPosition, LatLng point) {
+                if (_isInUdmurtia(point)) {
+                  _showAddPlaceDialog(point);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Можно добавлять места только на территории Удмуртской Республики',
+                        style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                      ),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
+                  setState(() {
+                    _isAddingPlace = false;
+                  });
+                }
+              } : null,
             ),
             children: [
               TileLayer(
@@ -635,7 +1117,12 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.example.profaritashion',
               ),
-              MarkerLayer(markers: colleges.map(_buildMarker).toList()),
+              MarkerLayer(
+                markers: [
+                  ...colleges.map(_buildMarker),
+                  ...userPlaces.map(_buildUserPlaceMarker),
+                ],
+              ),
             ],
           ),
 
@@ -668,7 +1155,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Карта колледжей",
+                                "Карта колледжей и мест",
                                 style: GoogleFonts.nunito(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
@@ -726,6 +1213,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                         children: [
                           _buildCompactLegendItem(Colors.blueAccent, "БПОУ УР"),
                           _buildCompactLegendItem(Colors.green, "АПОУ УР"),
+                          _buildCompactLegendItem(Colors.red, "Пользовательские места"),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
@@ -733,7 +1221,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              "${colleges.length} колледжей",
+                              "${colleges.length + userPlaces.length} мест",
                               style: GoogleFonts.nunito(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -750,17 +1238,64 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
             ),
           ),
 
-          // Кнопка центрирования
+          // Кнопки действий
           Positioned(
             bottom: 100,
             right: 16,
-            child: FloatingActionButton(
-              onPressed: () {
-                _mapController.move(const LatLng(56.848, 53.213), 8.5);
-              },
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.my_location),
+            child: Column(
+              children: [
+                // Кнопка списка мест
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PlacesListPage(userId: widget.userId),
+                      ),
+                    );
+                  },
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  heroTag: "list",
+                  child: const Icon(Icons.list),
+                ),
+                const SizedBox(height: 12),
+                // Кнопка добавления места
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      _isAddingPlace = !_isAddingPlace;
+                    });
+                    if (_isAddingPlace) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Нажмите на любое место в Удмуртии для добавления',
+                            style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                          ),
+                          backgroundColor: const Color(0xFF6C63FF),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
+                  backgroundColor: _isAddingPlace ? Colors.orange : const Color(0xFF6C63FF),
+                  foregroundColor: Colors.white,
+                  heroTag: "add",
+                  child: const Icon(Icons.add),
+                ),
+                const SizedBox(height: 12),
+                // Кнопка центрирования
+                FloatingActionButton(
+                  onPressed: () {
+                    _mapController.move(const LatLng(56.848, 53.213), 8.5);
+                  },
+                  backgroundColor: const Color(0xFF6C63FF),
+                  foregroundColor: Colors.white,
+                  heroTag: "center",
+                  child: const Icon(Icons.my_location),
+                ),
+              ],
             ),
           ),
         ],
