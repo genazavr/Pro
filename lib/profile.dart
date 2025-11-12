@@ -800,6 +800,56 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             child: Text(
+                              'Организация подготовки',
+                              style: GoogleFonts.nunito(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          _buildFeatureButton(
+                            'Pomodoro таймер',
+                            'Планируйте циклы работы и отдыха',
+                            Icons.timer,
+                            () => Navigator.pushNamed(
+                              context,
+                              '/pomodoro',
+                              arguments: widget.userId,
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          _buildFeatureButton(
+                            'Календарь подготовки',
+                            'Расписывайте занятия по дням',
+                            Icons.calendar_today,
+                            () => Navigator.pushNamed(
+                              context,
+                              '/schedule',
+                              arguments: widget.userId,
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          _buildFeatureButton(
+                            'Заметки',
+                            'Храните идеи и списки задач',
+                            Icons.note_alt,
+                            () => Navigator.pushNamed(
+                              context,
+                              '/notes',
+                              arguments: widget.userId,
+                            ),
+                            themeManager.currentTheme,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(
                               'Карьерная ориентация',
                               style: GoogleFonts.nunito(
                                 fontSize: 16,
