@@ -265,6 +265,7 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
 
               // Места обучения
               Container(
+               height: 300,
                margin: const EdgeInsets.symmetric(horizontal: 20),
                padding: const EdgeInsets.all(20),
                decoration: BoxDecoration(
@@ -293,9 +294,7 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                    Expanded(
                      child: SingleChildScrollView(
                        child: Column(
-                         children: [
-                           ...sortedProfessions.map((profession) => _buildEducationInfo(profession)),
-                         ],
+                         children: sortedProfessions.map((profession) => _buildEducationInfo(profession)).toList(),
                        ),
                      ),
                    ),
