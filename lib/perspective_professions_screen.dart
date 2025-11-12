@@ -150,14 +150,14 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
             children: [
               // Заголовок
               Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(20),
+                margin: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+                padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blueAccent.withOpacity(0.3),
+                      color: Colors.blueAccent.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 5),
                     ),
@@ -174,12 +174,13 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             onTap: () => Navigator.of(context).pop(),
-                            child: const SizedBox(
-                              height: 44,
-                              width: 44,
+                            child: SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.11,
+                              width: MediaQuery.of(context).size.width * 0.11,
                               child: Icon(
                                 Icons.arrow_back_ios_new_rounded,
                                 color: Color(0xFF0A0F2D),
+                                size: MediaQuery.of(context).size.width * 0.06,
                               ),
                             ),
                           ),
@@ -189,21 +190,21 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                             "Самые перспективные профессии",
                             textAlign: TextAlign.center,
                             style: GoogleFonts.nunito(
-                              fontSize: 22,
+                              fontSize: MediaQuery.of(context).size.width * 0.055,
                               fontWeight: FontWeight.w800,
                               color: const Color(0xFF0A0F2D),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 44),
+                        SizedBox(width: MediaQuery.of(context).size.width * 0.11),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MediaQuery.of(context).size.width * 0.02),
                     Text(
                       "Высокий спрос и хорошая зарплата в Удмуртии",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.nunito(
-                        fontSize: 14,
+                        fontSize: MediaQuery.of(context).size.width * 0.035,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF6C63FF),
                       ),
@@ -222,14 +223,14 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                       child: SlideTransition(
                         position: _slideAnimation,
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          padding: const EdgeInsets.all(20),
+                          margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
+                          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.95),
+                            color: Colors.white.withValues(alpha: 0.95),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 15,
                                 offset: const Offset(0, 5),
                               ),
@@ -241,12 +242,12 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                               Text(
                                 "График заработных плат",
                                 style: GoogleFonts.nunito(
-                                  fontSize: 18,
+                                  fontSize: MediaQuery.of(context).size.width * 0.045,
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFF0A0F2D),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: MediaQuery.of(context).size.width * 0.05),
                               
                               // График
                               Expanded(
@@ -261,12 +262,12 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: MediaQuery.of(context).size.width * 0.05),
 
               // Места обучения
               Container(
-               margin: const EdgeInsets.symmetric(horizontal: 20),
-               padding: const EdgeInsets.all(20),
+               margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
+               padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
                decoration: BoxDecoration(
                  color: Colors.white.withOpacity(0.95),
                  borderRadius: BorderRadius.circular(20),
@@ -284,15 +285,16 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                    Text(
                      "Где учиться в Удмуртии",
                      style: GoogleFonts.nunito(
-                       fontSize: 18,
+                       fontSize: MediaQuery.of(context).size.width * 0.045,
                        fontWeight: FontWeight.w700,
                        color: const Color(0xFF0A0F2D),
                      ),
                    ),
-                   const SizedBox(height: 16),
+                   SizedBox(height: MediaQuery.of(context).size.width * 0.04),
                    Expanded(
                      child: SingleChildScrollView(
                        child: Column(
+                         mainAxisSize: MainAxisSize.min,
                          children: [
                            ...sortedProfessions.map((profession) => _buildEducationInfo(profession)),
                          ],
@@ -312,6 +314,10 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
   }
 
   Widget _buildSalaryChart(List<Map<String, dynamic>> professions) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     professions.map((p) => _parseMaxSalary(p['salary'])).reduce((a, b) => a > b ? a : b);
     
     return Column(
@@ -323,7 +329,7 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
             Text(
               "Профессия",
               style: GoogleFonts.nunito(
-                fontSize: 12,
+                fontSize: isSmallScreen ? 10 : 12,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF0A0F2D),
               ),
@@ -331,14 +337,14 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
             Text(
               "Зарплата (₽)",
               style: GoogleFonts.nunito(
-                fontSize: 12,
+                fontSize: isSmallScreen ? 10 : 12,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF0A0F2D),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: screenWidth * 0.04),
         
         // Столбцы графика
         Expanded(
@@ -351,17 +357,17 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
               final maxHeight = (maxSalary / maxSalary) * 200;
               
               return Container(
-                margin: const EdgeInsets.only(bottom: 20),
+                margin: EdgeInsets.only(bottom: screenWidth * 0.05),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     // Название профессии
                     SizedBox(
-                      width: 100,
+                      width: screenWidth * 0.25,
                       child: Text(
                         profession['name'],
                         style: GoogleFonts.nunito(
-                          fontSize: 11,
+                          fontSize: isSmallScreen ? 9 : 11,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF0A0F2D),
                         ),
@@ -369,32 +375,32 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    
-                    const SizedBox(width: 16),
-                    
+
+                    SizedBox(width: screenWidth * 0.04),
+
                     // График
                     Expanded(
                       child: SizedBox(
-                        height: 220,
+                        height: isSmallScreen ? 180 : 220,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             // Минимальная зарплата
                             Container(
-                              width: 30,
+                              width: screenWidth * 0.07,
                               height: minHeight,
                               decoration: BoxDecoration(
-                                color: Colors.blue.withOpacity(0.6),
+                                color: Colors.blue.withValues(alpha: 0.6),
                                 borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                               ),
                             ),
-                            
-                            const SizedBox(width: 2),
-                            
+
+                            SizedBox(width: screenWidth * 0.005),
+
                             // Максимальная зарплата
                             Container(
-                              width: 30,
+                              width: screenWidth * 0.07,
                               height: maxHeight,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
@@ -412,12 +418,12 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                         ),
                       ),
                     ),
-                    
-                    const SizedBox(width: 16),
-                    
+
+                    SizedBox(width: screenWidth * 0.04),
+
                     // Значения зарплаты
                     SizedBox(
-                      width: 60,
+                      width: screenWidth * 0.15,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -425,7 +431,7 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                           Text(
                             profession['salary'],
                             style: GoogleFonts.nunito(
-                              fontSize: 10,
+                              fontSize: isSmallScreen ? 8 : 10,
                               fontWeight: FontWeight.w700,
                               color: const Color(0xFF6C63FF),
                             ),
@@ -434,7 +440,7 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: screenWidth * 0.02),
                     _buildPlayButton(profession['name'], compact: true),
                   ],
                 ),
@@ -444,33 +450,33 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
         ),
         
         // Легенда
-        const SizedBox(height: 16),
+        SizedBox(height: screenWidth * 0.04),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 16,
-              height: 16,
+              width: screenWidth * 0.04,
+              height: screenWidth * 0.04,
               decoration: BoxDecoration(
                 color: Colors.blue.withOpacity(0.6),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: screenWidth * 0.02),
             Text(
               "Минимальная",
               style: GoogleFonts.nunito(
-                fontSize: 11,
+                fontSize: isSmallScreen ? 9 : 11,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF0A0F2D),
               ),
             ),
             
-            const SizedBox(width: 24),
+            SizedBox(width: screenWidth * 0.06),
             
             Container(
-              width: 16,
-              height: 16,
+              width: screenWidth * 0.04,
+              height: screenWidth * 0.04,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF6C63FF), Color(0xFF4A90E2)],
@@ -478,11 +484,11 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: screenWidth * 0.02),
             Text(
               "Максимальная",
               style: GoogleFonts.nunito(
-                fontSize: 11,
+                fontSize: isSmallScreen ? 9 : 11,
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF0A0F2D),
               ),
@@ -494,14 +500,18 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
   }
 
   Widget _buildEducationInfo(Map<String, dynamic> profession) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: screenWidth * 0.04),
+      padding: EdgeInsets.all(screenWidth * 0.04),
       decoration: BoxDecoration(
-        color: const Color(0xFF6C63FF).withOpacity(0.05),
+        color: const Color(0xFF6C63FF).withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF6C63FF).withOpacity(0.2),
+          color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -512,14 +522,14 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
               Icon(
                 Icons.school,
                 color: const Color(0xFF6C63FF),
-                size: 20,
+                size: isSmallScreen ? 18 : 20,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: screenWidth * 0.02),
               Expanded(
                 child: Text(
                   profession['name'],
                   style: GoogleFonts.nunito(
-                    fontSize: 14,
+                    fontSize: isSmallScreen ? 12 : 14,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF0A0F2D),
                   ),
@@ -528,35 +538,35 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
             ],
           ),
           
-          const SizedBox(height: 12),
+          SizedBox(height: screenWidth * 0.03),
           
           Text(
             "Учебные заведения:",
             style: GoogleFonts.nunito(
-              fontSize: 12,
+              fontSize: isSmallScreen ? 10 : 12,
               fontWeight: FontWeight.w600,
               color: const Color(0xFF6C63FF),
             ),
           ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: screenWidth * 0.02),
           
           for (var college in profession['colleges'] as List)
             Padding(
-              padding: const EdgeInsets.only(bottom: 4),
+              padding: EdgeInsets.only(bottom: screenWidth * 0.01),
               child: Row(
                 children: [
                   Icon(
                     Icons.location_on,
                     color: Colors.grey[600],
-                    size: 12,
+                    size: isSmallScreen ? 10 : 12,
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: screenWidth * 0.015),
                   Expanded(
                     child: Text(
                       college,
                       style: GoogleFonts.nunito(
-                        fontSize: 12,
+                        fontSize: isSmallScreen ? 10 : 12,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF0A0F2D),
                       ),
@@ -566,27 +576,27 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
               ),
             ),
           
-          const SizedBox(height: 8),
+          SizedBox(height: screenWidth * 0.02),
           
           Row(
             children: [
               Icon(
                 Icons.attach_money,
                 color: Colors.green,
-                size: 16,
+                size: isSmallScreen ? 14 : 16,
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: screenWidth * 0.015),
               Text(
                 "Зарплата: ${profession['salary']}",
                 style: GoogleFonts.nunito(
-                  fontSize: 12,
+                  fontSize: isSmallScreen ? 10 : 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.green,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: screenWidth * 0.03),
           Align(
             alignment: Alignment.centerRight,
             child: _buildPlayButton(profession['name']),

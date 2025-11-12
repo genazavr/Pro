@@ -756,7 +756,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.95),
                     borderRadius: const BorderRadius.only(
@@ -776,7 +776,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                       Text(
                         "Рейтинг колледжей",
                         style: GoogleFonts.nunito(
-                          fontSize: 24,
+                          fontSize: MediaQuery.of(context).size.width * 0.06,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF0A0F2D),
                         ),
@@ -784,7 +784,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                       Text(
                         "Удмуртская Республика",
                         style: GoogleFonts.nunito(
-                          fontSize: 16,
+                          fontSize: MediaQuery.of(context).size.width * 0.04,
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF6C63FF),
                         ),
@@ -793,9 +793,9 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.04),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(16),
@@ -828,11 +828,11 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: MediaQuery.of(context).size.width * 0.015),
                 _buildTrendCarousel(),
-                const SizedBox(height: 10),
+                SizedBox(height: MediaQuery.of(context).size.width * 0.025),
                 _buildStatsSummary(filteredColleges, rankedColleges),
-                const SizedBox(height: 8),
+                SizedBox(height: MediaQuery.of(context).size.width * 0.02),
                 Expanded(
                   child: _buildCollegeList(rankedColleges),
                 ),
@@ -846,10 +846,14 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   }
 
   Widget _buildTrendCarousel() {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700;
+    
     if (_isLoadingTrends) {
       return Container(
-        height: 230,
-        margin: const EdgeInsets.symmetric(horizontal: 16),
+        height: isSmallScreen ? 180 : 230,
+        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
@@ -864,9 +868,10 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
     }
 
     if (specialtyTrends.isEmpty) {
+      final screenWidth = MediaQuery.of(context).size.width;
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.all(20),
+        margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
@@ -876,29 +881,36 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
           style: GoogleFonts.nunito(
             color: Colors.white70,
             fontWeight: FontWeight.w600,
+            fontSize: screenWidth * 0.04,
           ),
         ),
       );
     }
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenHeight < 700;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
           child: Row(
             children: [
-              Text(
-                'Лидеры рынка труда после 9 класса',
-                style: GoogleFonts.nunito(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
+              Expanded(
+                child: Text(
+                  'Лидеры рынка труда после 9 класса',
+                  style: GoogleFonts.nunito(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: isSmallScreen ? 16 : 18,
+                  ),
                 ),
               ),
-              const Spacer(),
+              SizedBox(width: screenWidth * 0.02),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.015),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
@@ -907,7 +919,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                   'Firebase realtime',
                   style: GoogleFonts.nunito(
                     color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: isSmallScreen ? 10 : 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -915,9 +927,9 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
             ],
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: screenHeight * 0.02),
         SizedBox(
-          height: 260,
+          height: isSmallScreen ? 200 : 260,
           child: PageView.builder(
             controller: _trendPageController,
             itemCount: specialtyTrends.length,
@@ -944,12 +956,15 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   }
 
   Widget _buildTrendCard(SpecialtyTrend trend, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
     final isActive = index == _currentTrendIndex;
     final margin = EdgeInsets.only(
-      left: index == 0 ? 20 : 12,
-      right: index == specialtyTrends.length - 1 ? 20 : 12,
-      top: isActive ? 0 : 12,
-      bottom: 16,
+      left: index == 0 ? screenWidth * 0.05 : screenWidth * 0.03,
+      right: index == specialtyTrends.length - 1 ? screenWidth * 0.05 : screenWidth * 0.03,
+      top: isActive ? 0 : screenWidth * 0.03,
+      bottom: screenWidth * 0.04,
     );
 
     return AnimatedContainer(
@@ -975,7 +990,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(screenWidth * 0.05),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -983,7 +998,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildRankingBadge(index),
-                const SizedBox(width: 12),
+                SizedBox(width: screenWidth * 0.03),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -992,15 +1007,15 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                         trend.name,
                         style: GoogleFonts.nunito(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: isSmallScreen ? 16 : 18,
                           fontWeight: FontWeight.w800,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: screenWidth * 0.015),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.015),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(14),
@@ -1010,7 +1025,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                           style: GoogleFonts.nunito(
                             color: Colors.white.withValues(alpha: 0.88),
                             fontWeight: FontWeight.w700,
-                            fontSize: 12,
+                            fontSize: isSmallScreen ? 10 : 12,
                           ),
                         ),
                       ),
@@ -1023,13 +1038,13 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: screenWidth * 0.03),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: screenWidth * 0.02,
+              runSpacing: screenWidth * 0.02,
               children: trend.colleges.map((college) {
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.025, vertical: screenWidth * 0.015),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(14),
@@ -1039,15 +1054,15 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                     style: GoogleFonts.nunito(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                      fontSize: isSmallScreen ? 10 : 12,
                     ),
                   ),
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: screenWidth * 0.04),
             _buildTrendMetricsRow(trend),
-            const SizedBox(height: 16),
+            SizedBox(height: screenWidth * 0.04),
             _buildTrendCharts(trend),
           ],
         ),
@@ -1085,8 +1100,12 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
     required String subtitle,
     required IconData icon,
   }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(screenWidth * 0.035),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(18),
@@ -1094,22 +1113,22 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.82), size: 20),
-          const SizedBox(height: 6),
+          Icon(icon, color: Colors.white.withValues(alpha: 0.82), size: isSmallScreen ? 16 : 20),
+          SizedBox(height: screenWidth * 0.015),
           Text(
             value,
             style: GoogleFonts.nunito(
               color: Colors.white,
               fontWeight: FontWeight.w800,
-              fontSize: 16,
+              fontSize: isSmallScreen ? 14 : 16,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: screenWidth * 0.005),
           Text(
             label,
             style: GoogleFonts.nunito(
               color: Colors.white70,
-              fontSize: 12,
+              fontSize: isSmallScreen ? 10 : 12,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1117,7 +1136,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
             subtitle,
             style: GoogleFonts.nunito(
               color: Colors.white60,
-              fontSize: 11,
+              fontSize: isSmallScreen ? 9 : 11,
             ),
           ),
         ],
@@ -1352,8 +1371,9 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      padding: EdgeInsets.fromLTRB(screenWidth * 0.04, 0, screenWidth * 0.04, screenWidth * 0.06),
       itemCount: ranked.length,
       itemBuilder: (context, index) {
         return _buildCollegeCard(ranked[index], index);
@@ -1362,19 +1382,22 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   }
 
   Widget _buildCollegeCard(Map<String, dynamic> college, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
     final isFavorite = favoriteColleges.contains(college['name']);
     final double rating = _computeCollegeScore(college);
     final price = ((college['price'] as num?) ?? 0).toDouble();
     final List<String> specialties = List<String>.from(college['specialties'] as List);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: screenWidth * 0.04),
       child: Material(
         color: Colors.white.withValues(alpha: 0.96),
         elevation: 8,
         borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(screenWidth * 0.05),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
@@ -1393,7 +1416,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRankingBadge(index),
-                  const SizedBox(width: 12),
+                  SizedBox(width: screenWidth * 0.03),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1401,29 +1424,29 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                         Text(
                           college['name'],
                           style: GoogleFonts.nunito(
-                            fontSize: 16,
+                            fontSize: isSmallScreen ? 14 : 16,
                             fontWeight: FontWeight.w800,
                             color: const Color(0xFF0A0F2D),
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: screenWidth * 0.015),
                         Row(
                           children: [
-                            Icon(Icons.location_city, size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 6),
+                            Icon(Icons.location_city, size: isSmallScreen ? 14 : 16, color: Colors.grey[600]),
+                            SizedBox(width: screenWidth * 0.015),
                             Expanded(
                               child: Text(
                                 college['city'],
                                 style: GoogleFonts.nunito(
-                                  fontSize: 12,
+                                  fontSize: isSmallScreen ? 10 : 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.grey[700],
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: screenWidth * 0.02),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.025, vertical: screenWidth * 0.01),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(10),
@@ -1431,7 +1454,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                               child: Text(
                                 college['type'],
                                 style: GoogleFonts.nunito(
-                                  fontSize: 11,
+                                  fontSize: isSmallScreen ? 9 : 11,
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFF6C63FF),
                                 ),
@@ -1446,22 +1469,22 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                     icon: Icon(
                       Icons.star_rounded,
                       color: isFavorite ? Colors.amber : Colors.grey[300],
-                      size: 26,
+                      size: isSmallScreen ? 22 : 26,
                     ),
                     onPressed: () => _toggleFavorite(college['name'] as String),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: screenWidth * 0.035),
               Row(
                 children: [
                   _buildScoreChip(rating),
-                  const SizedBox(width: 10),
+                  SizedBox(width: screenWidth * 0.025),
                   Expanded(
                     child: Text(
                       'Индекс востребованности',
                       style: GoogleFonts.nunito(
-                        fontSize: 12,
+                        fontSize: isSmallScreen ? 10 : 12,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF6C63FF),
                       ),
@@ -1469,54 +1492,56 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: screenWidth * 0.035),
               Row(
                 children: [
                   _buildStatInfoChip('Бюджет', '${college['budget']} мест', Colors.blueAccent),
-                  const SizedBox(width: 8),
+                  SizedBox(width: screenWidth * 0.02),
                   _buildStatInfoChip('Проходной балл', '${college['passScore']}', Colors.deepOrangeAccent),
-                  const SizedBox(width: 8),
+                  SizedBox(width: screenWidth * 0.02),
                   _buildStatInfoChip('Платных', '${college['paid']}', Colors.green),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: screenWidth * 0.035),
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(screenWidth * 0.03),
                 decoration: BoxDecoration(
                   color: const Color(0xFF6C63FF).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.attach_money, size: 18, color: Color(0xFF6C63FF)),
-                    const SizedBox(width: 8),
+                    Icon(Icons.attach_money, size: isSmallScreen ? 16 : 18, color: const Color(0xFF6C63FF)),
+                    SizedBox(width: screenWidth * 0.02),
                     Text(
                       'Оплата в год: ${price.toStringAsFixed(1)} тыс. ₽',
                       style: GoogleFonts.nunito(
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF0A0F2D),
+                        fontSize: isSmallScreen ? 12 : 14,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: screenWidth * 0.035),
               Text(
                 'Направления подготовки',
                 style: GoogleFonts.nunito(
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF0A0F2D),
+                  fontSize: isSmallScreen ? 12 : 14,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: screenWidth * 0.02),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: screenWidth * 0.02,
+                runSpacing: screenWidth * 0.02,
                 children: specialties.map((specialty) {
                   final isTrend = _isTrendingSpecialty(specialty);
                   final color = isTrend ? const Color(0xFF6C63FF) : Colors.blueAccent;
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.025, vertical: screenWidth * 0.015),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
@@ -1527,13 +1552,13 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                       children: [
                         if (isTrend)
                           Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Icon(Icons.whatshot, size: 14, color: color),
+                            padding: EdgeInsets.only(right: screenWidth * 0.01),
+                            child: Icon(Icons.whatshot, size: isSmallScreen ? 12 : 14, color: color),
                           ),
                         Text(
                           specialty,
                           style: GoogleFonts.nunito(
-                            fontSize: 11,
+                            fontSize: isSmallScreen ? 9 : 11,
                             fontWeight: FontWeight.w600,
                             color: color,
                           ),
@@ -1543,17 +1568,18 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: screenWidth * 0.04),
               SizedBox(
                 width: double.infinity,
-                height: 46,
+                height: isSmallScreen ? 40 : 46,
                 child: ElevatedButton.icon(
                   onPressed: () => _launchURL(college['url']),
-                  icon: const Icon(Icons.link, size: 18),
+                  icon: Icon(Icons.link, size: isSmallScreen ? 16 : 18),
                   label: Text(
                     'Перейти на сайт колледжа',
                     style: GoogleFonts.nunito(
                       fontWeight: FontWeight.w700,
+                      fontSize: isSmallScreen ? 12 : 14,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -1574,9 +1600,13 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   }
 
   Widget _buildStatInfoChip(String title, String value, Color color) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.025),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(14),
@@ -1587,7 +1617,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
             Text(
               title,
               style: GoogleFonts.nunito(
-                fontSize: 11,
+                fontSize: isSmallScreen ? 9 : 11,
                 fontWeight: FontWeight.w600,
                 color: color.withValues(alpha: 0.85),
               ),
@@ -1595,7 +1625,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
             Text(
               value,
               style: GoogleFonts.nunito(
-                fontSize: 14,
+                fontSize: isSmallScreen ? 12 : 14,
                 fontWeight: FontWeight.w800,
                 color: color,
               ),
@@ -1614,9 +1644,14 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
     ];
     final baseColor = index < colors.length ? colors[index] : const Color(0xFF6C63FF);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    final badgeSize = isSmallScreen ? 40.0 : 48.0;
+    
     return Container(
-      height: 48,
-      width: 48,
+      height: badgeSize,
+      width: badgeSize,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -1639,6 +1674,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
           style: GoogleFonts.nunito(
             color: index < 3 ? Colors.black87 : Colors.white,
             fontWeight: FontWeight.w800,
+            fontSize: isSmallScreen ? 16 : 18,
           ),
         ),
       ),
@@ -1646,8 +1682,12 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   }
 
   Widget _buildScoreChip(double rating) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenHeight < 700;
+    
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035, vertical: screenWidth * 0.02),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF6C63FF), Color(0xFF4A90E2)],
@@ -1664,13 +1704,14 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, color: Colors.white, size: 18),
-          const SizedBox(width: 4),
+          Icon(Icons.star_rounded, color: Colors.white, size: isSmallScreen ? 16 : 18),
+          SizedBox(width: screenWidth * 0.01),
           Text(
             rating.toStringAsFixed(1),
             style: GoogleFonts.nunito(
               color: Colors.white,
               fontWeight: FontWeight.w800,
+              fontSize: isSmallScreen ? 14 : 16,
             ),
           ),
         ],
