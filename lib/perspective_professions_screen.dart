@@ -265,35 +265,42 @@ class _PerspectiveProfessionsScreenState extends State<PerspectiveProfessionsScr
 
               // Места обучения
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Где учиться в Удмуртии",
-                      style: GoogleFonts.nunito(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0A0F2D),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    ...sortedProfessions.map((profession) => _buildEducationInfo(profession)),
-                  ],
-                ),
+               margin: const EdgeInsets.symmetric(horizontal: 20),
+               padding: const EdgeInsets.all(20),
+               decoration: BoxDecoration(
+                 color: Colors.white.withOpacity(0.95),
+                 borderRadius: BorderRadius.circular(20),
+                 boxShadow: [
+                   BoxShadow(
+                     color: Colors.black.withOpacity(0.1),
+                     blurRadius: 15,
+                     offset: const Offset(0, 5),
+                   ),
+                 ],
+               ),
+               child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+                   Text(
+                     "Где учиться в Удмуртии",
+                     style: GoogleFonts.nunito(
+                       fontSize: 18,
+                       fontWeight: FontWeight.w700,
+                       color: const Color(0xFF0A0F2D),
+                     ),
+                   ),
+                   const SizedBox(height: 16),
+                   Expanded(
+                     child: SingleChildScrollView(
+                       child: Column(
+                         children: [
+                           ...sortedProfessions.map((profession) => _buildEducationInfo(profession)),
+                         ],
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
               ),
 
               const SizedBox(height: 20),

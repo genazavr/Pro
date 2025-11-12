@@ -22,16 +22,21 @@ class _StamperGameState extends State<StamperGame> with TickerProviderStateMixin
   bool _hasPressed = false;
   double _accuracy = 0.0;
   int _currentRound = 0;
+  int _currentLevel = 0;
   final int _totalRounds = 5;
   final List<double> _accuracyHistory = [];
+  
+  double _getIndicatorDuration() {
+    final baseDuration = 21.0;
+    final speedIncrease = _currentLevel * 0.5;
+    return (baseDuration - speedIncrease).clamp(15.0, 21.0);
+  }
   
   @override
   void initState() {
     super.initState();
-    _indicatorController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..addListener(() {
+    _updateIndicatorController();
+    _indicatorController.addListener(() {
       if (_indicatorController.value == 1.0 && !_hasPressed) {
         _onMissed();
       }
@@ -48,6 +53,13 @@ class _StamperGameState extends State<StamperGame> with TickerProviderStateMixin
     );
   }
 
+  void _updateIndicatorController() {
+    _indicatorController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: (_getIndicatorDuration() * 1000).toInt()),
+    );
+  }
+
   @override
   void dispose() {
     _indicatorController.dispose();
@@ -60,12 +72,18 @@ class _StamperGameState extends State<StamperGame> with TickerProviderStateMixin
     setState(() {
       _isGameActive = true;
       _currentRound = 0;
+      _currentLevel = 0;
       _accuracyHistory.clear();
     });
     _startRound();
   }
 
   void _startRound() {
+    if (_currentRound > 0 && _currentRound % 5 == 0) {
+      setState(() => _currentLevel++);
+      _indicatorController.dispose();
+      _updateIndicatorController();
+    }
     setState(() {
       _hasPressed = false;
       _accuracy = 0.0;
