@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets/bottom_nav.dart';
+import 'widgets/themed_page.dart';
 import 'dart:math';
 
 class CollegeRatingPage extends StatefulWidget {
@@ -13,15 +14,12 @@ class CollegeRatingPage extends StatefulWidget {
   State<CollegeRatingPage> createState() => _CollegeRatingPageState();
 }
 
-class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTickerProviderStateMixin {
+class _CollegeRatingPageState extends State<CollegeRatingPage> {
   final _db = FirebaseDatabase.instance.ref();
   List<Map<String, dynamic>> colleges = [];
   List<String> favoriteColleges = [];
   final int _currentIndex = 2;
   String _selectedCity = 'Все города';
-  late AnimationController _starController;
-  final List<Star> _stars = [];
-  final Random _random = Random();
   late final PageController _trendPageController;
   List<SpecialtyTrend> specialtyTrends = [];
   bool _isLoadingColleges = true;
@@ -32,77 +30,9 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
   void initState() {
     super.initState();
     _trendPageController = PageController(viewportFraction: 0.88);
-    _starController = AnimationController(
-      duration: const Duration(seconds: 25),
-      vsync: this,
-    )..repeat();
-
-    _initializeStars();
     _loadColleges();
     _loadLaborTrends();
     _loadFavorites();
-  }
-
-  void _initializeStars() {
-    for (int i = 0; i < 150; i++) {
-      _stars.add(Star(
-        x: _random.nextDouble() * 1.5 - 0.5,
-        y: _random.nextDouble() * 2 - 1,
-        speed: 0.3 + _random.nextDouble() * 0.7,
-        size: 2.0 + _random.nextDouble() * 4.0,
-        delay: _random.nextDouble() * 3.0,
-        brightness: 0.6 + _random.nextDouble() * 0.4,
-      ));
-    }
-  }
-
-  Widget _buildStarBackground() {
-    return AnimatedBuilder(
-      animation: _starController,
-      builder: (context, child) {
-        return Stack(
-          children: _stars.map((star) {
-            final progress = (_starController.value * star.speed + star.delay) % 2.0;
-            final x = star.x + progress * 1.5;
-            final y = star.y + progress * 1.5;
-            final opacity = x > 0 && x < 1.5 && y > -0.5 && y < 1.5
-                ? (1.0 - (progress / 2.0).abs()) * star.brightness
-                : 0.0;
-
-            final pulse = (sin(_starController.value * 5 * pi + star.delay * 8) + 1) / 2;
-            final currentOpacity = opacity * (0.8 + 0.2 * pulse);
-
-            return Positioned(
-              left: x * MediaQuery.of(context).size.width,
-              top: y * MediaQuery.of(context).size.height,
-              child: Opacity(
-                opacity: currentOpacity.clamp(0.0, 1.0),
-                child: Container(
-                  width: star.size,
-                  height: star.size,
-                  decoration: BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.yellow.withValues(alpha: 0.9),
-                        blurRadius: star.size * 3,
-                        spreadRadius: star.size * 0.8,
-                      ),
-                      BoxShadow(
-                        color: Colors.orange.withValues(alpha: 0.6),
-                        blurRadius: star.size * 6,
-                        spreadRadius: star.size * 2,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
   }
 
   Future<void> _loadColleges() async {
@@ -717,7 +647,6 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
 
   @override
   void dispose() {
-    _starController.dispose();
     _trendPageController.dispose();
     super.dispose();
   }
@@ -731,114 +660,99 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
     final rankedColleges = List<Map<String, dynamic>>.from(filteredColleges)
       ..sort((a, b) => _computeCollegeScore(b).compareTo(_computeCollegeScore(a)));
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0F2D),
-      body: Stack(
-        children: [
-          _buildStarBackground(),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF0A0F2D).withValues(alpha: 0.6),
-                  const Color(0xFF1E3A8A).withValues(alpha: 0.4),
-                  const Color(0xFF0A0F2D).withValues(alpha: 0.6),
-                ],
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
+    return ThemedPage(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 5),
                     ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      "Рейтинг колледжей",
+                      style: GoogleFonts.nunito(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0A0F2D),
+                      ),
+                    ),
+                    Text(
+                      "Удмуртская Республика",
+                      style: GoogleFonts.nunito(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF6C63FF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blueAccent.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 5),
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Рейтинг колледжей",
-                        style: GoogleFonts.nunito(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0A0F2D),
-                        ),
-                      ),
-                      Text(
-                        "Удмуртская Республика",
-                        style: GoogleFonts.nunito(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF6C63FF),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: DropdownButton<String>(
-                      value: _selectedCity,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6C63FF)),
-                      items: availableCities.map((city) {
-                        return DropdownMenuItem(
-                          value: city,
-                          child: Text(
-                            city,
-                            style: GoogleFonts.nunito(
-                              fontWeight: FontWeight.w600,
-                              color: const Color(0xFF0A0F2D),
-                            ),
+                  child: DropdownButton<String>(
+                    value: _selectedCity,
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6C63FF)),
+                    items: availableCities.map((city) {
+                      return DropdownMenuItem(
+                        value: city,
+                        child: Text(
+                          city,
+                          style: GoogleFonts.nunito(
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF0A0F2D),
                           ),
-                        );
-                      }).toList(),
-                      onChanged: (value) => _applyCityFilter(value!),
-                    ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) => _applyCityFilter(value!),
                   ),
                 ),
-                const SizedBox(height: 6),
-                _buildTrendCarousel(),
-                const SizedBox(height: 10),
-                _buildStatsSummary(filteredColleges, rankedColleges),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: _buildCollegeList(rankedColleges),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 6),
+              _buildTrendCarousel(),
+              const SizedBox(height: 10),
+              _buildStatsSummary(filteredColleges, rankedColleges),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 400,
+                child: _buildCollegeList(rankedColleges),
+              ),
+            ],
           ),
-        ],
+        ),
+        bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
       ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
     );
   }
 
@@ -2099,22 +2013,4 @@ class _TrendChartPainter extends CustomPainter {
   bool shouldRepaint(covariant _TrendChartPainter oldDelegate) {
     return oldDelegate.progress != progress || oldDelegate.points != points || oldDelegate.color != color;
   }
-}
-
-class Star {
-  final double x;
-  final double y;
-  final double speed;
-  final double size;
-  final double delay;
-  final double brightness;
-
-  Star({
-    required this.x,
-    required this.y,
-    required this.speed,
-    required this.size,
-    required this.delay,
-    required this.brightness,
-  });
 }
