@@ -481,7 +481,7 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
         Navigator.pushReplacementNamed(context, '/map_page', arguments: widget.userId);
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/college_rating', arguments: widget.userId);
+        Navigator.pushReplacementNamed(context, '/chat', arguments: widget.userId);
         break;
       case 3:
         break;
@@ -929,7 +929,7 @@ class _ProfessionsPageState extends State<ProfessionsPage> with SingleTickerProv
           ),
         ],
       ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate, userId: widget.userId),
     );
   }
 

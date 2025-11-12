@@ -94,7 +94,7 @@ class _PlacesListPageState extends State<PlacesListPage> with SingleTickerProvid
     final routes = [
       '/choice_tests',
       '/map_page',
-      '/college_rating',
+      '/chat',
       '/professions',
       '/profile',
     ];
@@ -748,7 +748,7 @@ class _PlacesListPageState extends State<PlacesListPage> with SingleTickerProvid
           ),
         ],
       ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate, userId: widget.userId),
     );
   }
 

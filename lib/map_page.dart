@@ -410,7 +410,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
     final routes = [
       '/choice_tests',
       '/map_page',
-      '/college_rating',
+      '/chat',
       '/professions',
       '/profile',
     ];
@@ -1300,7 +1300,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate, userId: widget.userId),
     );
   }
 

@@ -668,6 +668,9 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
       case 1:
         Navigator.pushReplacementNamed(context, '/map_page', arguments: widget.userId);
         break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/chat', arguments: widget.userId);
+        break;
       case 3:
         Navigator.pushReplacementNamed(context, '/professions', arguments: widget.userId);
         break;
@@ -838,7 +841,7 @@ class _CollegeRatingPageState extends State<CollegeRatingPage> with SingleTicker
           ),
         ],
       ),
-      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+      bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate, userId: widget.userId),
     );
   }
 

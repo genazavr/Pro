@@ -341,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         Navigator.pushReplacementNamed(context, '/map_page', arguments: widget.userId);
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/college_rating', arguments: widget.userId);
+        Navigator.pushReplacementNamed(context, '/chat', arguments: widget.userId);
         break;
       case 3:
         Navigator.pushReplacementNamed(context, '/professions', arguments: widget.userId);
@@ -908,7 +908,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               ),
             ],
           ),
-          bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+          bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate, userId: widget.userId),
         );
       },
     );

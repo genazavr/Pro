@@ -12,6 +12,7 @@ import 'map_page.dart';
 import 'college_rating.dart';
 import 'professions.dart';
 import 'profile.dart';
+import 'chat_page.dart';
 import 'ege_screen.dart';
 import 'oge_screen.dart';
 import 'admission_chances_screen.dart';
@@ -61,6 +62,10 @@ class MyApp extends StatelessWidget {
               '/professions': (context) {
                 final userId = ModalRoute.of(context)!.settings.arguments as String;
                 return ProfessionsPage(userId: userId);
+              },
+              '/chat': (context) {
+                final userId = ModalRoute.of(context)!.settings.arguments as String;
+                return ChatPage(userId: userId);
               },
               '/profile': (context) {
                 final userId = ModalRoute.of(context)!.settings.arguments as String;
