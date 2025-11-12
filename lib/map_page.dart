@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'widgets/bottom_nav.dart';
+import 'widgets/themed_page.dart';
 import 'places_list_page.dart';
 import 'dart:math';
 
@@ -16,12 +17,9 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
+class _MapPageState extends State<MapPage> {
   int _currentIndex = 1;
   final MapController _mapController = MapController();
-  late AnimationController _starController;
-  final List<Star> _stars = [];
-  final Random _random = Random();
   bool _isDarkMode = true;
   final _db = FirebaseDatabase.instance.ref();
   bool _isAddingPlace = false;
@@ -302,26 +300,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _starController = AnimationController(
-      duration: const Duration(seconds: 25),
-      vsync: this,
-    )..repeat();
-
-    _initializeStars();
     _loadUserPlaces();
-  }
-
-  void _initializeStars() {
-    for (int i = 0; i < 30; i++) {
-      _stars.add(Star(
-        x: _random.nextDouble() * 1.5 - 0.5,
-        y: _random.nextDouble() * 2 - 1,
-        speed: 0.3 + _random.nextDouble() * 0.7,
-        size: 2.0 + _random.nextDouble() * 4.0,
-        delay: _random.nextDouble() * 3.0,
-        brightness: 0.6 + _random.nextDouble() * 0.4,
-      ));
-    }
   }
 
   void _loadUserPlaces() async {
@@ -353,57 +332,6 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
            point.latitude <= maxLat && 
            point.longitude >= minLng && 
            point.longitude <= maxLng;
-  }
-
-  Widget _buildStarBackground() {
-    if (!_isDarkMode) return const SizedBox();
-
-    return AnimatedBuilder(
-      animation: _starController,
-      builder: (context, child) {
-        return Stack(
-          children: _stars.map((star) {
-            final progress = (_starController.value * star.speed + star.delay) % 2.0;
-            final x = star.x + progress * 1.5;
-            final y = star.y + progress * 1.5;
-            final opacity = x > 0 && x < 1.5 && y > -0.5 && y < 1.5
-                ? (1.0 - (progress / 2.0).abs()) * star.brightness
-                : 0.0;
-
-            final pulse = (sin(_starController.value * 5 * pi + star.delay * 8) + 1) / 2;
-            final currentOpacity = opacity * (0.8 + 0.2 * pulse);
-
-            return Positioned(
-              left: x * MediaQuery.of(context).size.width,
-              top: y * MediaQuery.of(context).size.height,
-              child: Opacity(
-                opacity: currentOpacity.clamp(0.0, 1.0),
-                child: Container(
-                  width: star.size,
-                  height: star.size,
-                  decoration: BoxDecoration(
-                    color: Colors.yellow,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.yellow.withOpacity(0.9),
-                        blurRadius: star.size * 3,
-                        spreadRadius: star.size * 0.8,
-                      ),
-                      BoxShadow(
-                        color: Colors.orange.withOpacity(0.6),
-                        blurRadius: star.size * 6,
-                        spreadRadius: star.size * 2,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
   }
 
   void _navigate(int index) {
@@ -1069,62 +997,59 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    _starController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _isDarkMode ? const Color(0xFF0A0F2D) : Colors.grey[100],
-      body: Stack(
-        children: [
-          // Звездный фон (только в темной теме)
-          _buildStarBackground(),
-
-          // Карта
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: const LatLng(56.848, 53.213),
-              initialZoom: 8.5,
-              maxZoom: 18,
-              minZoom: 6,
-              onTap: _isAddingPlace ? (TapPosition tapPosition, LatLng point) {
-                if (_isInUdmurtia(point)) {
-                  _showAddPlaceDialog(point);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Можно добавлять места только на территории Удмуртской Республики',
-                        style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+    return ThemedPage(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            // Карта
+            FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                initialCenter: const LatLng(56.848, 53.213),
+                initialZoom: 8.5,
+                maxZoom: 18,
+                minZoom: 6,
+                onTap: _isAddingPlace ? (TapPosition tapPosition, LatLng point) {
+                  if (_isInUdmurtia(point)) {
+                    _showAddPlaceDialog(point);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Можно добавлять места только на территории Удмуртской Республики',
+                          style: GoogleFonts.nunito(fontWeight: FontWeight.w600),
+                        ),
+                        backgroundColor: Colors.redAccent,
                       ),
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
-                  setState(() {
-                    _isAddingPlace = false;
-                  });
-                }
-              } : null,
+                    );
+                    setState(() {
+                      _isAddingPlace = false;
+                    });
+                  }
+                } : null,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: _isDarkMode
+                      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+                      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                  subdomains: const ['a', 'b', 'c', 'd'],
+                  userAgentPackageName: 'com.example.profaritashion',
+                ),
+                MarkerLayer(
+                  markers: [
+                    ...colleges.map(_buildMarker),
+                    ...userPlaces.map(_buildUserPlaceMarker),
+                  ],
+                ),
+              ],
             ),
-            children: [
-              TileLayer(
-                urlTemplate: _isDarkMode
-                    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-                    : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
-                userAgentPackageName: 'com.example.profaritashion',
-              ),
-              MarkerLayer(
-                markers: [
-                  ...colleges.map(_buildMarker),
-                  ...userPlaces.map(_buildUserPlaceMarker),
-                ],
-              ),
-            ],
-          ),
 
           // Красивый заголовок с легендой внутри
           SafeArea(
@@ -1301,6 +1226,7 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
         ],
       ),
       bottomNavigationBar: BottomNav(currentIndex: _currentIndex, onTap: _navigate),
+      ),
     );
   }
 
@@ -1328,22 +1254,4 @@ class _MapPageState extends State<MapPage> with SingleTickerProviderStateMixin {
       ],
     );
   }
-}
-
-class Star {
-  final double x;
-  final double y;
-  final double speed;
-  final double size;
-  final double delay;
-  final double brightness;
-
-  Star({
-    required this.x,
-    required this.y,
-    required this.speed,
-    required this.size,
-    required this.delay,
-    required this.brightness,
-  });
 }

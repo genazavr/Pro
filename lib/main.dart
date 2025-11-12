@@ -16,6 +16,7 @@ import 'ege_screen.dart';
 import 'oge_screen.dart';
 import 'admission_chances_screen.dart';
 import 'merch_shop_screen.dart';
+import 'events_page.dart';
 // Если есть firebase_options.dart, раскомментировать:
 // import 'firebase_options.dart';
 
@@ -81,6 +82,13 @@ class MyApp extends StatelessWidget {
               '/merch_shop': (context) {
                 final userId = ModalRoute.of(context)!.settings.arguments as String;
                 return MerchShopScreen(userId: userId);
+              },
+              '/events': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+                return EventsPage(
+                  userId: args['userId']!,
+                  userName: args['userName']!,
+                );
               },
             },
           );
