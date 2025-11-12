@@ -77,6 +77,18 @@ class _FoundryGameState extends State<FoundryGame> with TickerProviderStateMixin
     setState(() => _selectedMold = index);
   }
 
+  bool _isLadleAboveMold() {
+    final formCenterX = MediaQuery.of(context).size.width / 2;
+    final formCenterY = MediaQuery.of(context).size.height / 2 - 50;
+    
+    final distance = math.sqrt(
+      math.pow(_ladlePosition.dx + 40 - formCenterX, 2) +
+      math.pow(_ladlePosition.dy + 60 - formCenterY, 2),
+    );
+    
+    return distance < 150;
+  }
+
   void _nextStep() {
     if (_currentStep == 0) {
       if (_selectedMold == _levels[_currentLevel]['correctMold']) {
@@ -407,7 +419,10 @@ class _FoundryGameState extends State<FoundryGame> with TickerProviderStateMixin
                     decoration: BoxDecoration(
                       color: Colors.grey[800],
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white, width: 3),
+                      border: Border.all(
+                        color: _isLadleAboveMold() ? Colors.green : Colors.white,
+                        width: 3,
+                      ),
                     ),
                     child: Stack(
                       alignment: Alignment.bottomCenter,
@@ -440,8 +455,10 @@ class _FoundryGameState extends State<FoundryGame> with TickerProviderStateMixin
                   top: _ladlePosition.dy,
                   child: GestureDetector(
                     onTapDown: (_) {
-                      setState(() => _isPouring = true);
-                      _pouringController.forward();
+                      if (_isLadleAboveMold()) {
+                        setState(() => _isPouring = true);
+                        _pouringController.forward();
+                      }
                     },
                     onTapUp: (_) {
                       setState(() => _isPouring = false);
@@ -453,12 +470,15 @@ class _FoundryGameState extends State<FoundryGame> with TickerProviderStateMixin
                           width: 80,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: _isLadleAboveMold() ? Colors.green[300] : Colors.grey[300],
                             borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(30),
                               bottomRight: Radius.circular(30),
                             ),
-                            border: Border.all(color: Colors.grey[700]!, width: 3),
+                            border: Border.all(
+                              color: _isLadleAboveMold() ? Colors.green[700]! : Colors.grey[700]!,
+                              width: 3,
+                            ),
                           ),
                           child: Container(
                             margin: const EdgeInsets.all(5),
@@ -473,7 +493,7 @@ class _FoundryGameState extends State<FoundryGame> with TickerProviderStateMixin
                             ),
                           ),
                         ),
-                        if (_isPouring)
+                        if (_isPouring && _isLadleAboveMold())
                           CustomPaint(
                             size: const Size(10, 40),
                             painter: MetalStreamPainter(),
