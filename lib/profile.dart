@@ -5,6 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'widgets/bottom_nav.dart';
 import 'dart:math';
+import 'ege_screen.dart';
+import 'oge_screen.dart';
+import 'admission_chances_screen.dart';
+import 'merch_shop_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -398,6 +402,69 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
   }
 
+  Widget _buildFeatureButton(String title, String subtitle, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF6C63FF).withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6C63FF).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.nunito(
+                      fontSize: 16,
+                      color: const Color(0xFF0A0F2D),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.nunito(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey[400],
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _starController.dispose();
@@ -591,6 +658,89 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                           'Избранные профессии',
                           favoriteProfessions,
                           Colors.green
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Новые фишки профиля
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          'Подготовка к экзаменам',
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
+                      _buildFeatureButton(
+                        'ЕГЭ',
+                        'Подготовка к единому гос. экзамену',
+                        Icons.school,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EGEScreen(userId: widget.userId)),
+                        ),
+                      ),
+
+                      _buildFeatureButton(
+                        'ОГЭ',
+                        'Подготовка к основному гос. экзамену',
+                        Icons.school_outlined,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => OGEScreen(userId: widget.userId)),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          'Карьерная ориентация',
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
+                      _buildFeatureButton(
+                        'Шансы поступления',
+                        'Рассчитайте свои шансы на профессию',
+                        Icons.trending_up,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AdmissionChancesScreen(userId: widget.userId)),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Text(
+                          'Магазин',
+                          style: GoogleFonts.nunito(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
+                      _buildFeatureButton(
+                        'Магазин мерча',
+                        'Купите мерч на баллы',
+                        Icons.shopping_bag,
+                        () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MerchShopScreen(userId: widget.userId)),
+                        ),
                       ),
 
                       const SizedBox(height: 20),
